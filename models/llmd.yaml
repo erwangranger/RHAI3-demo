@@ -1,0 +1,41 @@
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  annotations:
+    alpha.maas.opendatahub.io/tiers: '[]'
+    opendatahub.io/connections: oci-as-uri
+    opendatahub.io/hardware-profile-name: gpu-profile
+    opendatahub.io/hardware-profile-namespace: redhat-ods-applications
+    opendatahub.io/model-type: generative
+    openshift.io/display-name: llmd - maas - llama32
+    security.opendatahub.io/enable-auth: 'false'
+  name: llmd-maas-llama32
+  finalizers:
+    - serving.kserve.io/llmisvc-finalizer
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  model:
+    name: llmd-maas-llama32
+    uri: 'oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct'
+  replicas: 1
+  router:
+    gateway:
+      refs:
+        - name: maas-default-gateway
+          namespace: openshift-ingress
+    route: {}
+    scheduler: {}
+  template:
+    containers:
+      - name: main
+        resources:
+          limits:
+            cpu: '1'
+            memory: 12Gi
+            nvidia.com/gpu: '1'
+          requests:
+            cpu: '1'
+            memory: 12Gi
+            nvidia.com/gpu: '1'
